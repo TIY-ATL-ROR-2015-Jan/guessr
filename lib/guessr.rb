@@ -6,9 +6,34 @@ Camping.goes :Guessr
 
 module Guessr
   module Models
+
     class Player < Base
       validates :name, presence: true, uniqueness: true
       # alternately: validates :name, presence: true
+    end
+
+    class NumberGuessingGame < Base
+      validates :answer, presence: true
+
+      intro = puts "Select a number between 1 - 100."
+
+      answer = rand(1..100)
+      guess = ""
+
+      def game(guess,answer)
+        while guess != answer do
+          guess = gets.chomp.to_i
+          if guess == 0
+            puts "That is not a valid option. Select a number between 1 - 100."
+          elsif  guess > answer
+            puts "That number is too high. Guess again!"
+          elsif guess < answer
+            puts "That number is too low. Guess again!"
+          else
+            puts "That is correct! You've won!"
+          end
+        end
+      end
     end
 
     class Hangman < Base
@@ -36,6 +61,13 @@ module Guessr
       def self.up
         create_table Player.table_name do |t|
           t.string :name
+          t.string :game #want to add game name column
+          t.timestamps
+        end
+
+        create_table NumberGuessingGame.table do |t|
+          t.integer :answer
+          t.integer :guess
           t.timestamps
         end
 
@@ -50,6 +82,7 @@ module Guessr
 
       def self.down
         drop_table Player.table_name
+        drop_table NumberGuessingGame.table_name
         drop_table Hangman.table_name
       end
     end
@@ -63,6 +96,17 @@ module Guessr
         remove_column Hangman.table_name, :player_id
       end
     end
+
+    class AddPlayerIdToNumberGuessingGame < V 1.1
+      def self.up
+        add_column NumberGuessingGame.table_name, :player_id, :integer
+      end
+
+      def self.down
+        remove_column NumberGuessingGame.table_name, :player_id
+      end
+    end
+
   end
 end
 
